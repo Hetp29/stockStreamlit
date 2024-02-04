@@ -3,7 +3,7 @@ import pandas as pd
 from fetcher import get_stock_data
 from predictor import predict_stock_prices
 from sklearn.linear_model import LinearRegression 
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 st.title("Stock Information App!")
 
@@ -22,14 +22,15 @@ y = stock_data['Close'].values
 model.fit(X, y)
 
 predictions = model.predict(X)
-future_dates = pd.date_range(start_date, end_date, closed='right')
+future_dates = pd.date_range(start=start_date, periods=len(stock_data)+10, freq='B')
 future_X = pd.Series(range(len(stock_data), len(stock_data) + len(future_dates)))
 future_predictions = model.predict(future_X.values.reshape(-1, 1))
 
 plt.figure(figsize=(10, 6))
 plt.plot(stock_data['Date'], y, label='Actual Prices')
 plt.plot(stock_data['Date'], predictions, label='Past Predictions')
-plt.plot(future_dates, label='Future Predictions', linestyle='dashed')
+future_dates_extended = pd.date_range(start=stock_data['Date'].iloc[-1], periods=len(future_dates), freq='B')[1:]
+plt.plot(future_dates, future_predictions, label='Future Predictions', linestyle='dashed')
 plt.xlabel('Date')
 plt.ylabel('Stock Price')
 plt.title(f"Stock Prices and Predictions for {ticker}")
@@ -51,4 +52,6 @@ st.write(future_predictions_df)
 
 st.subheader("Predicted Stock Prices")
 st.line_chart(predictions)
+
+#
 
