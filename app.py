@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from fetcher import get_stock_data
 from predictor import predict_stock_prices
+from sklearn.linear_model import LinearRegression 
+import matplotlib as plt
 
 st.title("Stock Information App!")
 
@@ -14,9 +16,39 @@ stock_data = get_stock_data(ticker, start_date, end_date)
 st.subheader(f"Stock Data for {ticker}")
 st.write(stock_data.head())
 
-predictions = predict_stock_prices(stock_data)
+model = LinearRegression()
+X = stock_data.index.values.reshape(-1, 1)
+y = stock_data['Close'].values
+model.fit(X, y)
+
+predictions = model.predict(X)
+future_dates = pd.date_range(start_date, end_date, closed='right')
+future_X = pd.Series(range(len(stock_data), len(stock_data) + len(future_dates)))
+future_predictions = model.predict(future_X.values.reshape(-1, 1))
+
+plt.figure(figsize=(10, 6))
+plt.plot(stock_data['Date'], y, label='Actual Prices')
+plt.plot(stock_data['Date'], predictions, label='Past Predictions')
+plt.plot(future_dates, label='Future Predictions', linestyle='dashed')
+plt.xlabel('Date')
+plt.ylabel('Stock Price')
+plt.title(f"Stock Prices and Predictions for {ticker}")
+plt.legend()
+st.pyplot(plt)
+
+st.subheader("Linear Regression Model Coefficients")
+st.write(f"Intercept: {model.intercept_}")
+st.write(f"Coefficient: {model.coef_[0]}")
+
+predictions_df = pd.DataFrame({'Date': stock_data['Date'], 'Actual': y, 'Predicted': predictions})
+st.subheader("Past Stock Price Predictions")
+st.write(predictions_df)
+
+future_predictions_df = pd.DataFrame({'Date': future_dates, 'Predicted': future_predictions})
+st.subheader("Future Stock Price Predictions")
+st.write(future_predictions_df)
+
 
 st.subheader("Predicted Stock Prices")
 st.line_chart(predictions)
-
 
