@@ -6,8 +6,8 @@ from predictor import predict_stock_prices
 st.title("Stock Information App!")
 
 ticker = st.text_input("Enter Stock Ticker Symbol (ex. AAPL): ", "AAPL")
-start_date = st.date_input("Select Start Date:", pd.to_datetime('2022-01-01'))
-end_date = st.date_input("Select End Date:", pd.to_datetime('2023-01-01'))
+start_date = st.date_input("Select Start Date:", pd.to_datetime('2024-02-01'))
+end_date = st.date_input("Select End Date:", pd.to_datetime('2024-02-03'))
 
 stock_data = get_stock_data(ticker, start_date, end_date)
 
