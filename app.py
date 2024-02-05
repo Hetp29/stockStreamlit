@@ -22,9 +22,23 @@ y = stock_data['Close'].values
 model.fit(X, y)
 
 predictions = model.predict(X)
+torch_predictions = predict_stock_prices(stock_data)
+combined_predictions = 0.5 * predictions + 0.5 * torch_predictions
+
 future_dates = pd.date_range(start=start_date, periods=len(stock_data)+10, freq='B')
 future_X = pd.Series(range(len(stock_data), len(stock_data) + len(future_dates)))
 future_predictions = model.predict(future_X.values.reshape(-1, 1))
+
+plt.figure(figsize=(10, 6))
+plt.plot(stock_data['Date'], y, label='Actual Prices')
+plt.plot(stock_data['Date'], predictions, label='Linear Regression Predictions')
+plt.plot(stock_data['Date'], torch_predictions, label='PyTorch Predictions')
+plt.plot(stock_data['Date'], combined_predictions, label='Combined Predictions', linestyle='dashed')
+plt.xlabel('Date')
+plt.ylabel('Stock Price')
+plt.title(f"Stock Prices and Predictions for {ticker}")
+plt.legend()
+st.pyplot(plt)
 
 plt.figure(figsize=(10, 6))
 plt.plot(stock_data['Date'], y, label='Actual Prices')
